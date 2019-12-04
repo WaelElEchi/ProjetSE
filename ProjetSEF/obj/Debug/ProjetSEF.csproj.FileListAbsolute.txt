@@ -1,0 +1,7 @@
+D:\ProjetSE\ProjetSEF\ProjetSEF\bin\Debug\ProjetSEF.exe.config
+D:\ProjetSE\ProjetSEF\ProjetSEF\bin\Debug\ProjetSEF.exe
+D:\ProjetSE\ProjetSEF\ProjetSEF\bin\Debug\ProjetSEF.pdb
+D:\ProjetSE\ProjetSEF\ProjetSEF\obj\Debug\ProjetSEF.csprojAssemblyReference.cache
+D:\ProjetSE\ProjetSEF\ProjetSEF\obj\Debug\ProjetSEF.csproj.CoreCompileInputs.cache
+D:\ProjetSE\ProjetSEF\ProjetSEF\obj\Debug\ProjetSEF.exe
+D:\ProjetSE\ProjetSEF\ProjetSEF\obj\Debug\ProjetSEF.pdb

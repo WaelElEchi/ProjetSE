@@ -13,6 +13,9 @@ namespace ProjetSEF
         public int tempEntre;
         public int tempRestant;
 
+        public int lastExecTime;
+        public List<int> executionTimings = new List<int>();
+
         public Proc(string _name, int _tempExec, int _tempEntre)
         {
             tempsExec = _tempExec;

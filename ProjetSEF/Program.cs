@@ -16,14 +16,22 @@ namespace ProjetSEF
         public static Commands commands = new Commands();
 
         public static List<Proc> procs = new List<Proc>();
+        public static List<Proc> procsHolder = new List<Proc>();
 
         private static void Main(string[] args)
         {
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.Clear();
+
             Console.WriteLine("Bienveu");
-            Console.WriteLine("Tapez 1 pour aller au shell");
-            Console.WriteLine("Tapez 2 pour all a l'ordonnanceur");
+            Console.WriteLine("Pour accéder à la 1er partie (l'interpreteur de commandes) tapez 1");
+            Console.WriteLine("Pour accéder à la 2éme partie (l'ordonnanceur) tapez 2");
+
+            Console.ResetColor();
 
             var choiceInput = Console.ReadLine();
+
+            Console.Clear();
 
             if (choiceInput == "1")
             {
@@ -64,6 +72,7 @@ namespace ProjetSEF
                         {
                             if (inputList[1] == "alias" && inputList.Count == 3)
                             {
+                                //Ajouter le nom a la liste des noms de la commande
                                 command.AddName(inputList[2]);
                             }
                             else
@@ -77,8 +86,6 @@ namespace ProjetSEF
                                 }
                                 else if (inputList.Count == 4)
                                 {
-                                    // Console.WriteLine(inputList[inputList.Count - 1]);
-                                    // Console.WriteLine(inputList[1]);
                                     File.AppendAllText(inputList[inputList.Count - 1], command.Execute_Command(inputList[1]));
                                     Console.WriteLine("INTO FILE WITH ARGUMENT");
                                     continue;
@@ -125,6 +132,10 @@ namespace ProjetSEF
                                 string file = System.IO.Path.GetFullPath(Directory.GetCurrentDirectory() + "/" + inputList[1]);
                                 ExecuteList(file);
                             }
+                            else if (command.GetType() == typeof(CreateFile))
+                            {
+                                command.Execute_Command(inputList[1]);
+                            }
                         }
                         else if (inputList.Count == 1)
                         {
@@ -163,6 +174,7 @@ namespace ProjetSEF
 
                     Proc p = new Proc("P" + i.ToString(), exec, entre);
                     procs.Add(p);
+                    procsHolder.Add(p);
                 }
 
                 Console.WriteLine("Choissez l'agorithme");
@@ -181,13 +193,13 @@ namespace ProjetSEF
                             break;
 
                         case "2":
-                            SJF2();
+                            SJF3();
                             break;
 
                         case "3":
                             Console.WriteLine("Quantum?");
                             var q = Console.ReadLine();
-                            TOURNIQUET(int.Parse(q));
+                            TOURNIQUET4(int.Parse(q));
                             break;
 
                         default:
@@ -220,12 +232,15 @@ namespace ProjetSEF
 
         private static void Init()
         {
+            //Enregistrer le path de profile.txt
             string fileName = System.IO.Path.GetFullPath(Directory.GetCurrentDirectory() + @"\profile.txt");
+            //ouvrir Profile.txt
             StreamReader sr = File.OpenText(fileName);
 
             path = "";
             home = "";
 
+            //Lire le fichier et assigner path et home
             for (int i = 0; i < 2; i++)
             {
                 string line = sr.ReadLine();
@@ -239,7 +254,7 @@ namespace ProjetSEF
                     path = line.Substring(5);
                 }
             }
-
+            //Changer le répértoire actuel au path
             FilePath = path;
             Directory.SetCurrentDirectory(path);
         }
@@ -264,7 +279,6 @@ namespace ProjetSEF
 
                     if (command != null)
                     {
-                        //Console.WriteLine("command exists");
                         if (inputList.Count > 2)
                         {
                             if (inputList[1] == "alias" && inputList.Count == 3)
@@ -350,7 +364,7 @@ namespace ProjetSEF
                     Console.WriteLine(ordList[0].name + " s'éxécute de " + t + " à " + (time + ordList[0].tempsExec));
                     time += ordList[0].tempsExec;
 
-                    sommeAttente += time - t;
+                    sommeAttente += (t - ordList[0].tempEntre);
                     ordList.Remove(ordList[0]);
                 }
                 else
@@ -360,7 +374,7 @@ namespace ProjetSEF
                 }
             }
 
-            Console.WriteLine("Temps d'attente moyen =" + sommeAttente / procs.Count);
+            Console.WriteLine("Temps d'attente moyen =" + (float)sommeAttente / procs.Count);
         }
 
         public static void SJF()
@@ -383,8 +397,8 @@ namespace ProjetSEF
 
                 sommeAttente += time - t;
             }
-
-            Console.WriteLine("Temps d'attente moyen =" + sommeAttente / procs.Count);
+            float f = (float)sommeAttente / (float)procs.Count;
+            Console.WriteLine("Temps d'attente moyen =" + f);
         }
 
         public static void SJF2()
@@ -394,6 +408,8 @@ namespace ProjetSEF
             int time = 0;
             int sommeAttente = 0;
             int t = time;
+
+            int turnAround;
 
             List<Proc> ordList = procs;
 
@@ -407,7 +423,9 @@ namespace ProjetSEF
                     Console.WriteLine(ordList[0].name + " s'éxécute de " + t + " à " + (time + ordList[0].tempsExec));
                     time += ordList[0].tempsExec;
 
-                    sommeAttente += time - t;
+                    turnAround = time - ordList[0].tempEntre;
+
+                    sommeAttente += turnAround - ordList[0].tempsExec;
                     ordList.Remove(ordList[0]);
                 }
                 else
@@ -417,7 +435,57 @@ namespace ProjetSEF
                 }
             }
 
-            Console.WriteLine("Temps d'attente moyen =" + sommeAttente / procs.Count);
+            Console.WriteLine("Temps d'attente moyen =" + (float)sommeAttente / procs.Count);
+        }
+
+        public static void SJF3()
+        {
+            Console.WriteLine("SJF");
+
+            int time = 0;
+            int sommeAttente = 0;
+            int t = time;
+
+            int turnAround;
+
+            List<Proc> ordList = procs;
+
+            List<Proc> readyList = new List<Proc>();
+            ordList = ordList.OrderBy(o => o.tempEntre).ToList();
+
+            while (ordList.Count > 0)
+            {
+                readyList.Clear();
+                for (int i = 0; i < ordList.Count; i++)
+                {
+                    if (ordList[i].tempEntre <= time)
+                    {
+                        readyList.Add(ordList[i]);
+                    }
+                }
+
+                readyList = readyList.OrderBy(p => p.tempsExec).ToList();
+
+                if (readyList.Count > 0)
+                {
+                    t = time;
+                    Console.WriteLine(readyList[0].name + " s'éxécute de " + t + " à " + (time + readyList[0].tempsExec));
+                    time += readyList[0].tempsExec;
+
+                    turnAround = time - readyList[0].tempEntre;
+
+                    sommeAttente += turnAround - readyList[0].tempsExec;
+                    ordList.Remove(readyList[0]);
+                    readyList.Remove(readyList[0]);
+                }
+                else
+                {
+                    time++;
+                    Console.WriteLine(time);
+                }
+            }
+
+            Console.WriteLine("Temps d'attente moyen =" + (float)sommeAttente / procs.Count);
         }
 
         //public static void TOURNIQUET(int quantum)
@@ -489,6 +557,68 @@ namespace ProjetSEF
             Console.WriteLine("Tourniquet");
 
             List<Proc> ordList = procs;
+            List<Proc> tempList = procs;
+            Queue<Proc> ordQueue = new Queue<Proc>();
+            Proc p;
+
+            bool done = false;
+
+            int time = 0;
+            int t;
+            int sommeAttente = 0;
+
+            while (ordList.Count >= 0 && done == false)
+            {
+                for (int i = 0; i < ordList.Count; i++)
+                {
+                    if (ordList[i].tempEntre <= time)
+                    {
+                        ordList[i].lastExecTime = ordList[i].tempEntre;
+                        ordQueue.Enqueue(ordList[i]);
+
+                        ordList.Remove(ordList[i]);
+                    }
+                }
+
+                if (ordQueue.Count > 0)
+                {
+                    p = ordQueue.Dequeue();
+                    t = time;
+                    sommeAttente += t - p.lastExecTime;
+                    if (p.tempRestant - quantum > 0)
+                    {
+                        p.tempRestant -= quantum;
+                        ordQueue.Enqueue(p);
+                        time += quantum;
+
+                        p.lastExecTime = time;
+                    }
+                    else if (p.tempRestant - quantum <= 0)
+                    {
+                        time += p.tempRestant;
+                    }
+                    Console.WriteLine(p.name + " s'execute de " + t + " à " + (time));
+                }
+                else
+                {
+                    time++;
+                    Console.WriteLine(time);
+                }
+
+                if (ordList.Count <= 0 && ordQueue.Count <= 0)
+                {
+                    done = true;
+                }
+            }
+            Console.WriteLine("Temps d'attente moyen =" + (float)sommeAttente / procsHolder.Count);
+        }
+
+        public static void TOURNIQUET4(int quantum)
+        {
+            Console.WriteLine("Tourniquet");
+
+            List<Proc> ordList = procs;
+            List<Proc> tempList = procs;
             Queue<Proc> ordQueue = new Queue<Proc>();
             Proc p;
 
@@ -505,6 +635,7 @@ namespace ProjetSEF
                     if (ordList[i].tempEntre <= time)
                     {
                         ordQueue.Enqueue(ordList[i]);
+
                         ordList.Remove(ordList[i]);
                     }
                 }
@@ -513,20 +644,20 @@ namespace ProjetSEF
                 {
                     p = ordQueue.Dequeue();
                     t = time;
-
+                    sommeAttente += t - p.lastExecTime;
                     if (p.tempRestant - quantum > 0)
                     {
                         p.tempRestant -= quantum;
                         ordQueue.Enqueue(p);
                         time += quantum;
+                        p.lastExecTime = time;
+                        p.executionTimings.Add(time);
                     }
                     else if (p.tempRestant - quantum <= 0)
                     {
                         time += p.tempRestant;
                     }
-
-                    Console.WriteLine(p.name + " s'execute de " + t + " à " + (time + ordList[0].tempsExec));
-                    sommeAttente += (time - t);
+                    Console.WriteLine(p.name + " s'execute de " + t + " à " + (time));
                 }
                 else
                 {
@@ -537,11 +668,87 @@ namespace ProjetSEF
                 if (ordList.Count <= 0 && ordQueue.Count <= 0)
                 {
                     done = true;
-                    // Console.WriteLine("done");
                 }
             }
 
-            Console.WriteLine("Temps d'attente moyen =" + sommeAttente / procs.Count);
+            int s = 0;
+            for (int i = 0; i < procsHolder.Count; i++)
+            {
+                s += procsHolder[i].tempEntre;
+            }
+
+            sommeAttente -= s;
+            Console.WriteLine("Temps d'attente moyen =" + (float)sommeAttente / procsHolder.Count);
+        }
+
+        public static void TOURNIQUET3(int quantum)
+        {
+            Console.WriteLine("Tourniquet");
+
+            List<Proc> ordList = procs;
+            List<Proc> tempList = procs;
+            Queue<Proc> ordQueue = new Queue<Proc>();
+            Proc p;
+            Proc aux = null;
+            bool done = false;
+
+            int time = 0;
+            int t;
+            int sommeAttente = 0;
+
+            while (ordList.Count >= 0 && done == false)
+            {
+                for (int i = 0; i < ordList.Count; i++)
+                {
+                    if (ordList[i].tempEntre <= time)
+                    {
+                        ordList[i].lastExecTime = ordList[i].tempEntre;
+                        ordQueue.Enqueue(ordList[i]);
+                        ordList.Remove(ordList[i]);
+                    }
+                }
+
+                if (aux != null)
+                {
+                    ordQueue.Enqueue(aux);
+                    aux = null;
+                }
+
+                if (ordQueue.Count > 0)
+                {
+                    p = ordQueue.Dequeue();
+                    t = time;
+                    sommeAttente += t - p.lastExecTime;
+                    if (p.tempRestant - quantum > 0)
+                    {
+                        p.tempRestant -= quantum;
+                        ordQueue.Enqueue(p);
+                        if (ordQueue.Count == 1)
+                        {
+                            aux = ordQueue.Dequeue();
+                        }
+                        time += quantum;
+
+                        p.lastExecTime = time;
+                    }
+                    else if (p.tempRestant - quantum <= 0)
+                    {
+                        time += p.tempRestant;
+                    }
+                    Console.WriteLine(p.name + " s'execute de " + t + " à " + (time));
+                }
+                else
+                {
+                    time++;
+                    Console.WriteLine(time);
+                }
+
+                if (ordList.Count <= 0 && ordQueue.Count <= 0)
+                {
+                    done = true;
+                }
+            }
+            Console.WriteLine("Temps d'attente moyen =" + (float)sommeAttente / procsHolder.Count);
         }
     }
 }

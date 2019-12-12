@@ -16,6 +16,7 @@ namespace ProjetSEF
 
         public override string Execute_Command(string fileName)
         {
+            Console.WriteLine("CreateF");
             Process.Start("notepad.exe", fileName);
             return null;
         }

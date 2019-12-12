@@ -17,19 +17,15 @@ namespace ProjetSEF
         public override string Execute_Command(string path)
         {
             string result = "";
-
             if (path == null)
             {
                 DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
                 foreach (DirectoryInfo d in dir.GetDirectories())
                 {
-                    //Console.WriteLine("{0, -30}\t directory", d.Name);
                     result += d.Name + "\t directory \n";
                 }
-
                 foreach (FileInfo f in dir.GetFiles())
                 {
-                    // Console.WriteLine("{0, -30}\t file", f.Name);
                     result += f.Name + "\t file \n";
                 }
             }
@@ -41,13 +37,11 @@ namespace ProjetSEF
 
                     foreach (DirectoryInfo d in dir.GetDirectories())
                     {
-                        // Console.WriteLine("{0, -30}\t directory", d.Name);
                         result += d.Name + "\t directory \n";
                     }
 
                     foreach (FileInfo f in dir.GetFiles())
                     {
-                        //Console.WriteLine("{0, -30}\t File", f.Name);
                         result += f.Name + "\t file \n";
                     }
                 }

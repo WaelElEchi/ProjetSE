@@ -193,13 +193,13 @@ namespace ProjetSEF
                             break;
 
                         case "2":
-                            SJF3();
+                            SJF();
                             break;
 
                         case "3":
                             Console.WriteLine("Quantum?");
                             var q = Console.ReadLine();
-                            TOURNIQUET4(int.Parse(q));
+                            TOURNIQUET(int.Parse(q));
                             break;
 
                         default:
@@ -385,67 +385,6 @@ namespace ProjetSEF
             int sommeAttente = 0;
             int t = time;
 
-            List<Proc> ordList = procs;
-
-            ordList = ordList.OrderBy(o => o.tempsExec).ToList();
-
-            for (int i = 0; i < ordList.Count; i++)
-            {
-                t = ordList[i].tempEntre;
-                Console.WriteLine(ordList[i].name);
-                time += ordList[i].tempsExec;
-
-                sommeAttente += time - t;
-            }
-            float f = (float)sommeAttente / (float)procs.Count;
-            Console.WriteLine("Temps d'attente moyen =" + f);
-        }
-
-        public static void SJF2()
-        {
-            Console.WriteLine("SJF");
-
-            int time = 0;
-            int sommeAttente = 0;
-            int t = time;
-
-            int turnAround;
-
-            List<Proc> ordList = procs;
-
-            ordList = ordList.OrderBy(o => o.tempsExec).ToList();
-
-            while (ordList.Count > 0)
-            {
-                if (ordList[0].tempEntre <= time)
-                {
-                    t = time;
-                    Console.WriteLine(ordList[0].name + " s'éxécute de " + t + " à " + (time + ordList[0].tempsExec));
-                    time += ordList[0].tempsExec;
-
-                    turnAround = time - ordList[0].tempEntre;
-
-                    sommeAttente += turnAround - ordList[0].tempsExec;
-                    ordList.Remove(ordList[0]);
-                }
-                else
-                {
-                    time++;
-                    Console.WriteLine(time);
-                }
-            }
-
-            Console.WriteLine("Temps d'attente moyen =" + (float)sommeAttente / procs.Count);
-        }
-
-        public static void SJF3()
-        {
-            Console.WriteLine("SJF");
-
-            int time = 0;
-            int sommeAttente = 0;
-            int t = time;
-
             int turnAround;
 
             List<Proc> ordList = procs;
@@ -488,132 +427,7 @@ namespace ProjetSEF
             Console.WriteLine("Temps d'attente moyen =" + (float)sommeAttente / procs.Count);
         }
 
-        //public static void TOURNIQUET(int quantum)
-        //{
-        //    Console.WriteLine("Tourniquet");
-
-        //    List<Proc> ordList = procs;
-        //    // List<Proc> tourList = new List<Proc>();
-        //    Queue<Proc> ordQueue = new Queue<Proc>();
-
-        //    //ordList.Reverse();
-
-        //    int timer = 0;
-
-        //    for (int i = 0; i < ordList.Count; i++)
-        //    {
-        //        if (ordList[i].tempEntre == timer)
-        //        {
-        //            ordQueue.Enqueue(ordList[i]);
-        //            ordList.Remove(ordList[i]);
-        //        }
-        //    }
-
-        //    //int index = 0;
-
-        //    //while (ordList.Count > 0)
-        //    //{
-        //    //    //timer++;
-
-        //    //    if (ordQueue.Count > 0)
-        //    //    {
-        //    //        Proc p = ordQueue.Dequeue();
-        //    //    }
-        //    //}
-
-        //    while (ordQueue.Count > 0)
-        //    {
-        //        //timer++;
-
-        //        Proc p = ordQueue.Dequeue();
-        //        int t = timer;
-
-        //        if (p.tempRestant - quantum > 0)
-        //        {
-        //            p.tempRestant -= quantum;
-        //            timer += quantum;
-        //            ordQueue.Enqueue(p);
-        //        }
-        //        else
-        //        {
-        //            timer += p.tempRestant;
-        //        }
-
-        //        Console.WriteLine(t + ":" + p.name);
-
-        //        for (int i = 0; i < ordList.Count; i++)
-        //        {
-        //            if (ordList[i].tempEntre >= timer)
-        //            {
-        //                ordQueue.Enqueue(ordList[i]);
-        //                ordList.Remove(ordList[i]);
-        //            }
-        //        }
-        //    }
-        //}
-
         public static void TOURNIQUET(int quantum)
-        {
-            Console.WriteLine("Tourniquet");
-
-            List<Proc> ordList = procs;
-            List<Proc> tempList = procs;
-            Queue<Proc> ordQueue = new Queue<Proc>();
-            Proc p;
-
-            bool done = false;
-
-            int time = 0;
-            int t;
-            int sommeAttente = 0;
-
-            while (ordList.Count >= 0 && done == false)
-            {
-                for (int i = 0; i < ordList.Count; i++)
-                {
-                    if (ordList[i].tempEntre <= time)
-                    {
-                        ordList[i].lastExecTime = ordList[i].tempEntre;
-                        ordQueue.Enqueue(ordList[i]);
-
-                        ordList.Remove(ordList[i]);
-                    }
-                }
-
-                if (ordQueue.Count > 0)
-                {
-                    p = ordQueue.Dequeue();
-                    t = time;
-                    sommeAttente += t - p.lastExecTime;
-                    if (p.tempRestant - quantum > 0)
-                    {
-                        p.tempRestant -= quantum;
-                        ordQueue.Enqueue(p);
-                        time += quantum;
-
-                        p.lastExecTime = time;
-                    }
-                    else if (p.tempRestant - quantum <= 0)
-                    {
-                        time += p.tempRestant;
-                    }
-                    Console.WriteLine(p.name + " s'execute de " + t + " à " + (time));
-                }
-                else
-                {
-                    time++;
-                    Console.WriteLine(time);
-                }
-
-                if (ordList.Count <= 0 && ordQueue.Count <= 0)
-                {
-                    done = true;
-                }
-            }
-            Console.WriteLine("Temps d'attente moyen =" + (float)sommeAttente / procsHolder.Count);
-        }
-
-        public static void TOURNIQUET4(int quantum)
         {
             Console.WriteLine("Tourniquet");
 
@@ -678,76 +492,6 @@ namespace ProjetSEF
             }
 
             sommeAttente -= s;
-            Console.WriteLine("Temps d'attente moyen =" + (float)sommeAttente / procsHolder.Count);
-        }
-
-        public static void TOURNIQUET3(int quantum)
-        {
-            Console.WriteLine("Tourniquet");
-
-            List<Proc> ordList = procs;
-            List<Proc> tempList = procs;
-            Queue<Proc> ordQueue = new Queue<Proc>();
-            Proc p;
-            Proc aux = null;
-            bool done = false;
-
-            int time = 0;
-            int t;
-            int sommeAttente = 0;
-
-            while (ordList.Count >= 0 && done == false)
-            {
-                for (int i = 0; i < ordList.Count; i++)
-                {
-                    if (ordList[i].tempEntre <= time)
-                    {
-                        ordList[i].lastExecTime = ordList[i].tempEntre;
-                        ordQueue.Enqueue(ordList[i]);
-                        ordList.Remove(ordList[i]);
-                    }
-                }
-
-                if (aux != null)
-                {
-                    ordQueue.Enqueue(aux);
-                    aux = null;
-                }
-
-                if (ordQueue.Count > 0)
-                {
-                    p = ordQueue.Dequeue();
-                    t = time;
-                    sommeAttente += t - p.lastExecTime;
-                    if (p.tempRestant - quantum > 0)
-                    {
-                        p.tempRestant -= quantum;
-                        ordQueue.Enqueue(p);
-                        if (ordQueue.Count == 1)
-                        {
-                            aux = ordQueue.Dequeue();
-                        }
-                        time += quantum;
-
-                        p.lastExecTime = time;
-                    }
-                    else if (p.tempRestant - quantum <= 0)
-                    {
-                        time += p.tempRestant;
-                    }
-                    Console.WriteLine(p.name + " s'execute de " + t + " à " + (time));
-                }
-                else
-                {
-                    time++;
-                    Console.WriteLine(time);
-                }
-
-                if (ordList.Count <= 0 && ordQueue.Count <= 0)
-                {
-                    done = true;
-                }
-            }
             Console.WriteLine("Temps d'attente moyen =" + (float)sommeAttente / procsHolder.Count);
         }
     }

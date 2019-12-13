@@ -1,0 +1,2 @@
+﻿PATH=C:\Users\AlienTX\Downloads\Compressed\ProjetSEF\
+HOME=C:\Users\AlienTX\Downloads\Compressed\ProjetSEF\
